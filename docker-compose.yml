@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+
+  mysql:
+    build:
+      context: ./mysql
+    ports:
+      - "3307:3306"
+    volumes:
+        - mysql-data:/var/lib/mysql
+        - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_DATABASE: rbac_fastapi
+      MYSQL_USER: martin
+      MYSQL_PASSWORD: Penis123@
+
+  rbac_fastapi:
+    build:
+      context: ./rbac_fastapi
+    ports:
+      - 80:80
+    volumes: 
+        - ./rbac_fastapi:/rbac_fastapi    
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
