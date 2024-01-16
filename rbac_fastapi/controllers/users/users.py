@@ -3,6 +3,8 @@ from configs.db import db
 from controllers.auth.oauth2 import get_current_user
 import bcrypt
 from libraries.validations import alphanumeric, password
+import base64
+import json
 
 router = APIRouter(prefix='/users', tags=['users'])
 
@@ -81,9 +83,15 @@ def get_user(user_id: int, current_user_data: str = Depends(get_current_user)):
     if user_data is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="User not found")
-    return {"user_username": user_data['user_username'],
-            "user_password": user_data['user_password']
-            }
+    response_json = {
+        "user_username": user_data['user_username'],
+        "user_password": user_data['user_password']
+                    }
+
+    encoded_response = base64.b64encode(json.dumps(response_json).encode(
+        'utf-8')).decode('utf-8')
+
+    return {"base64_response": encoded_response}
 
 
 @router.put('/{user_id}')
