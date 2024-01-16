@@ -22,7 +22,8 @@ def create_jwt_token(data: dict):
 
 
 def get_user_data_by_username(user_username: str):
-    user_data = db.select('''select user_id, user_username, user_password from rbac_fastapi.users where user_username='{0}' '''.format("".join(user_username)))
+    user_data = db.select('''select u.user_id , u.user_username , u.user_password, r.role_name from rbac_fastapi.users u left join rbac_fastapi.roles r on u.role_id = r.role_id  where user_username='{0}' '''.format("".join(user_username)))
+    print({"user_data": user_data})
     return user_data
 
 
@@ -34,11 +35,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_username: str = payload.get("sub")
-        if user_username is None:
+        roles: str = payload.get("roles")
+        print({"roles": roles})
+        if user_username is None or roles is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
     user_data = get_user_data_by_username(user_username)
-    if user_data is None:
+    if user_data is None or roles is None:
         raise credentials_exception
     return user_data

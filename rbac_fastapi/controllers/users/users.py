@@ -41,6 +41,10 @@ def create_user(user_username: str, user_password: str):
             description='Click on execute to get the data',
             response_description='All the users existent')
 def get_all_users(current_user_data: str = Depends(get_current_user)):
+    if not current_user_data['role_name'] == 'superadmin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have the permission to perform this operation")
     all_users_data = db.select(
         ''' select user_id, user_username, user_password
             from rbac_fastapi.users; ''',
@@ -55,7 +59,6 @@ def get_all_users(current_user_data: str = Depends(get_current_user)):
         {
             "user_id": user['user_id'],
             "user_username": user['user_username'],
-            "user_password": user['user_password']
         }
         for user in all_users_data
     ]
@@ -64,9 +67,12 @@ def get_all_users(current_user_data: str = Depends(get_current_user)):
 
 @router.get('/{user_id}')
 def get_user(user_id: int, current_user_data: str = Depends(get_current_user)):
-
+    if not (current_user_data['role_name'] == 'superadmin' or current_user_data[user_id] == user_id):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You do not have the permission to perform this operation"
+        )
     check_user_existence = db.select(''' select count(*) from rbac_fastapi.users where user_id = '{0}'; '''.format(user_id))
-    print({'check_user_existence': check_user_existence})
     if check_user_existence['count(*)'] == 0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="The user with " +
@@ -75,9 +81,7 @@ def get_user(user_id: int, current_user_data: str = Depends(get_current_user)):
     if user_data is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="User not found")
-    return {
-            "user_id": user_data['user_id'],
-            "user_username": user_data['user_username'],
+    return {"user_username": user_data['user_username'],
             "user_password": user_data['user_password']
             }
 
@@ -87,10 +91,10 @@ def update_user(user_id: int,
                 user_username: str,
                 user_password: str,
                 current_user_data: str = Depends(get_current_user)):
-    if current_user_data['user_id'] != user_id:
+    if not (current_user_data['role_name'] == 'admin' or current_user_data['role_name'] == 'superadmin' or current_user_data['user_id'] == user_id):
         raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="You are not allowed to modify this data!"
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="You do not have the permission to perform this operation"
                         )
 
     if not alphanumeric(user_username):
@@ -125,8 +129,8 @@ def delete_user(
                 user_id: int,
                 current_user_data: str = Depends(get_current_user)
                 ):
-    if current_user_data['user_id'] != user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+    if not (current_user_data['role_name'] == 'superadmin' or current_user_data['role_name'] == 'admin' or current_user_data['user_id'] == user_id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="You are not allowed " +
                             "to delete this data!")
     check_user_existence = db.select(''' select count(*) from rbac_fastapi.users where user_id = '{0}' '''.format(user_id))
