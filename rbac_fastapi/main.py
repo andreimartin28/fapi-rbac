@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from controllers.users import users
 from controllers.auth import authentication
+from controllers.products import products
 from configs import db
 
 # you can include inside things like :#$
@@ -9,6 +10,7 @@ app = FastAPI()
 
 app.include_router(users.router)
 app.include_router(authentication.router)
+app.include_router(products.router)
 
 db = db
 
