@@ -9,7 +9,7 @@ import json
 router = APIRouter(prefix='/users', tags=['users'])
 
 
-@router.post('/')
+@router.post('/create')
 def create_user(user_username: str, user_password: str):
     if not alphanumeric(user_username):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -150,7 +150,6 @@ def delete_user(
                             "already been deleted.")
 
     db.delete(''' delete from rbac_fastapi.users where user_id='{0}'; '''.format(user_id))
-
     return {
             "data_info": f"The user with user_id = {user_id} has " +
             "been deleted successfully!"

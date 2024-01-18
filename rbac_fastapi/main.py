@@ -3,6 +3,7 @@ from controllers.users import users
 from controllers.auth import authentication
 from controllers.products import products
 from configs import db
+from fastapi.staticfiles import StaticFiles
 
 # you can include inside things like :#$
 # docs_url="/documentation", redoc_url=None
@@ -13,6 +14,8 @@ app.include_router(authentication.router)
 app.include_router(products.router)
 
 db = db
+
+app.mount('/files', StaticFiles(directory='files/'), name='files')
 
 
 @app.get("/")
