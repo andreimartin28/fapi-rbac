@@ -56,7 +56,6 @@ def get_all_users(current_user_data: str = Depends(get_current_user)):
         raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="No users found")
-    print({"all_user_data": all_users_data})
     users_list = [
         {
             "user_id": user['user_id'],
@@ -142,7 +141,6 @@ def delete_user(
                             detail="You are not allowed " +
                             "to delete this data!")
     check_user_existence = db.select(''' select count(*) from rbac_fastapi.users where user_id = '{0}' '''.format(user_id))
-    print({'check_user_existence': check_user_existence})
     if check_user_existence['count(*)'] == 0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="The user with " +

@@ -41,7 +41,6 @@ def create_products(product_name: str,
                                 "in the database")
     photo_uuid = str(uuid.uuid4().hex)
     file_extension = product_photo.filename.split(".")[-1]
-    print({"file_extension": file_extension})
     photo_renamed = f"{photo_uuid}.{file_extension}"
     path = f'files/{photo_renamed}'
     with open(path, "w+b") as buffer:
@@ -91,7 +90,6 @@ def get_specific_product(product_id: int):
 
     check_product_existence = db.select('''select product_id from products
                                             where product_id = {0};'''.format(product_id))
-    print({"check_product_existence": check_product_existence})
     if check_product_existence is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"The with the product_id = {product_id}" +
@@ -134,7 +132,6 @@ def update_product(product_id: int,
                                 "in the database")
     photo_uuid = str(uuid.uuid4().hex)
     file_extension = product_photo.filename.split(".")[-1]
-    print({"file_extension": file_extension})
     photo_renamed = f"{photo_uuid}.{file_extension}"
     path = f'files/{photo_renamed}'
     with open(path, "w+b") as buffer:

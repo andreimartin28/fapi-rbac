@@ -6,8 +6,8 @@ from configs.db import db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
-SECRET_KEY_P1 = "f027f67fabade699bfed696516c"
-SECRET_KEY_P2 = "f51c4d3bfb26da70bf6bb06395ed0dba18b5b"  # openssl rand -hex 32
+SECRET_KEY_P1 = ""
+SECRET_KEY_P2 = ""  # openssl rand -hex 32
 SECRET_KEY = "".join([SECRET_KEY_P1, SECRET_KEY_P2])
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -23,7 +23,6 @@ def create_jwt_token(data: dict):
 
 def get_user_data_by_username(user_username: str):
     user_data = db.select('''select u.user_id , u.user_username , u.user_password, r.role_name from rbac_fastapi.users u left join rbac_fastapi.roles r on u.role_id = r.role_id  where user_username='{0}' '''.format("".join(user_username)))
-    print({"user_data": user_data})
     return user_data
 
 
@@ -36,7 +35,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_username: str = payload.get("sub")
         roles: str = payload.get("roles")
-        print({"roles": roles})
         if user_username is None or roles is None:
             raise credentials_exception
     except JWTError:
