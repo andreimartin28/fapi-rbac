@@ -12,8 +12,8 @@ services:
         - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       MYSQL_DATABASE: rbac_fastapi
-      MYSQL_USER: martin
-      MYSQL_PASSWORD: Penis123@
+      MYSQL_USER: 
+      MYSQL_PASSWORD: 
 
   rbac_fastapi:
     build:
